@@ -7,6 +7,8 @@ RUN apt-get install -y pkg-config
 
 WORKDIR /usr/src/app
 COPY main.cpp .
-RUN g++ -o main main.cpp $(pkg-config --cflags --libs libpq)
+COPY Database.h .
+COPY Database.cpp .
+RUN g++ -o main main.cpp Database.cpp $(pkg-config --cflags --libs libpq)
 
 CMD ["./main"]
