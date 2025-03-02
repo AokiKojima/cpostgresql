@@ -1,50 +1,31 @@
-// #include <iostream>
-// #include <libpq-fe.h>
-
-// int main() {
-//     PGconn *conn = PQconnectdb("host=postgres port=5432 dbname=postgres user=postgres password=postgres");
-//     if (PQstatus(conn) == CONNECTION_BAD) {
-//         std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
-//         PQfinish(conn);
-//         return 1;
-//     }
-//     std::cout << "Connected to database" << std::endl;
-//     PQfinish(conn);
-//     std::cout << "Disconnected from database" << std::endl;
-//     return 0;
-// }
-
 #include <iostream>        // Подключение библиотеки для ввода-вывода
 #include <libpq-fe.h>     // Подключение библиотеки для работы с PostgreSQL
-#include <string>
+#include <string>         // Подключение библиотеки для работы со строками
+#include <cstdlib>        // Подключение библиотеки для работы с функцией getenv
 
 int main() {
-
+    // Получение значений переменных окружения для подключения к PostgreSQL
     std::string host = getenv("POSTGRES_HOST") ? getenv("POSTGRES_HOST") : "";
     std::string port = getenv("POSTGRES_PORT") ? getenv("POSTGRES_PORT") : "";
     std::string dbname = getenv("POSTGRES_DB") ? getenv("POSTGRES_DB") : "";
     std::string user = getenv("POSTGRES_USER") ? getenv("POSTGRES_USER") : "";
     std::string password = getenv("POSTGRES_PASSWORD") ? getenv("POSTGRES_PASSWORD") : "";
 
-
+    // Проверка, что все необходимые переменные окружения заданы
     if (host.empty() || port.empty() || dbname.empty() || user.empty() || password.empty()) {
-        std::cerr << "Environment variables are not set" << std::endl;
-        return 1;
+        std::cerr << "Environment variables are not set" << std::endl; // Сообщение об ошибке
+        return 1; // Завершаем программу с кодом ошибки 1
     }
 
+    // Формирование строки подключения к базе данных
     std::string conninfo = 
-    "host=" + host + 
-    " port=" + port + 
-    " dbname=" + dbname + 
-    " user=" + user + 
-    " password=" + password;
-    
+        "host=" + host + 
+        " port=" + port + 
+        " dbname=" + dbname + 
+        " user=" + user + 
+        " password=" + password;
 
-    // snprintf(conninfo, sizeof(conninfo), "host=%s port=%s dbname=%s user=%s password=%s", host, port, dbname, user, password);
-    // Создание строки подключения к базе данных PostgreSQL
-    // Здесь указаны хост, порт, имя базы данных, пользователь и пароль
-    // PGconn *conn = PQconnectdb("host=postgres port=5432 dbname=postgres user=postgres password=postgres");
-
+    // Создание соединения с базой данных PostgreSQL
     PGconn *conn = PQconnectdb(conninfo.c_str());
 
     // Проверка статуса подключения
