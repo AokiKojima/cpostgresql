@@ -24,7 +24,7 @@ string Database::getEnvVar(const char* var) {
     return value ? string(value) : string();
 };
 // метод для формирования строки подключения к базе данных
-string Database::conninfo (){
+string Database::conninfo(){
    string conninfo = 
        "host=" + getEnvVar("POSTGRES_HOST") + 
        " port=" + getEnvVar("POSTGRES_PORT") + 
@@ -55,7 +55,6 @@ int main() {
     db.connect();
     // Закрываем соединение с базой данных
     db.disconnect();
-
 
     return 0; // Завершаем программу с кодом 0 (успех)
 }
