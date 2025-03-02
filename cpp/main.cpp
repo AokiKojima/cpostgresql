@@ -1,55 +1,61 @@
 #include <iostream>        // Подключение библиотеки для ввода-вывода
 #include <libpq-fe.h>     // Подключение библиотеки для работы с PostgreSQL
+// #include "/opt/homebrew/opt/postgresql@14/include/postgresql@14/libpq-fe.h"
 #include <string>         // Подключение библиотеки для работы со строками
 #include <cstdlib>        // Подключение библиотеки для работы с функцией getenv
 
-// Функция для получения значений переменных окружения в отдельную переменную
-std::string getEnvVar(const char* var) {
+using std::string;
+using std::cout;
+using std::cerr;
+using std::endl;
+
+class Database {
+private:
+    string getEnvVar(const char* var);
+    PGconn *conn;
+    string conninfo();
+public:
+    bool connect();
+    void disconnect();
+};
+// метод для получения значений переменных окружения в отдельную переменную и проверка
+string Database::getEnvVar(const char* var) {
     const char* value = getenv(var);
-    return value ? std::string(value) : std::string();
+    return value ? string(value) : string();
+};
+// метод для формирования строки подключения к базе данных
+string Database::conninfo (){
+   string conninfo = 
+       "host=" + getEnvVar("POSTGRES_HOST") + 
+       " port=" + getEnvVar("POSTGRES_PORT") + 
+       " dbname=" + getEnvVar("POSTGRES_DB") + 
+       " user=" + getEnvVar("POSTGRES_USER") + 
+       " password=" + getEnvVar("POSTGRES_PASSWORD");
+   return conninfo;
+};
+bool Database::connect() {
+    PGconn *conn = PQconnectdb(conninfo().c_str());
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        cerr << "Connection to database failed: " << PQerrorMessage(conn) << endl;
+        PQfinish(conn);
+        return false;
+    }
+    cout << "Connected to database" << endl;
+    return true;
+}
+void Database::disconnect() {
+    // Закрываем соединение с базой данных
+    PQfinish(conn);
+    cout << "Disconnected from database" << endl;
 }
 
 int main() {
-    // Получение значений переменных окружения для подключения к PostgreSQL
-    std::string host = getEnvVar("POSTGRES_HOST");
-    std::string port = getEnvVar("POSTGRES_PORT");
-    std::string dbname = getEnvVar("POSTGRES_DB");
-    std::string user = getEnvVar("POSTGRES_USER");
-    std::string password = getEnvVar("POSTGRES_PASSWORD");
-
-    // Проверка, что все необходимые переменные окружения заданы
-    if (host.empty() || port.empty() || dbname.empty() || user.empty() || password.empty()) {
-        std::cerr << "Environment variables are not set" << std::endl; // Сообщение об ошибке
-        return 1; // Завершаем программу с кодом ошибки 1
-    }
-
-    // Формирование строки подключения к базе данных
-    std::string conninfo = 
-        "host=" + host + 
-        " port=" + port + 
-        " dbname=" + dbname + 
-        " user=" + user + 
-        " password=" + password;
-
-    // Создание соединения с базой данных PostgreSQL
-    PGconn *conn = PQconnectdb(conninfo.c_str());
-
-    // Проверка статуса подключения
-    if (PQstatus(conn) == CONNECTION_BAD) {
-        // Если подключение не удалось, выводим сообщение об ошибке
-        std::cerr << "Connection to database failed: " << PQerrorMessage(conn) << std::endl;
-        // Закрываем соединение, если оно было установлено
-        PQfinish(conn);
-        return 1; // Завершаем программу с кодом ошибки 1
-    }
-
-    // Если подключение успешно, выводим сообщение
-    std::cout << "Connected to database" << std::endl;
-
+    Database db;
+    // Открываем соединение с базой данных
+    db.connect();
     // Закрываем соединение с базой данных
-    PQfinish(conn);
-    // Сообщаем, что мы отключились от базы данных
-    std::cout << "Disconnected from database" << std::endl;
+    db.disconnect();
+
 
     return 0; // Завершаем программу с кодом 0 (успех)
 }
