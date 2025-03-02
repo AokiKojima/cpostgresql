@@ -16,23 +16,36 @@
 
 #include <iostream>        // Подключение библиотеки для ввода-вывода
 #include <libpq-fe.h>     // Подключение библиотеки для работы с PostgreSQL
-
+#include <string>
 
 int main() {
 
-    const char *host = getenv("POSTGRES_HOST");
-    const char *port = getenv("POSTGRES_PORT");
-    const char *dbname = getenv("POSTGRES_DB");
-    const char *user = getenv("POSTGRES_USER");
-    const char *password = getenv("POSTGRES_PASSWORD");
+    std::string host = getenv("POSTGRES_HOST") ? getenv("POSTGRES_HOST") : "";
+    std::string port = getenv("POSTGRES_PORT") ? getenv("POSTGRES_PORT") : "";
+    std::string dbname = getenv("POSTGRES_DB") ? getenv("POSTGRES_DB") : "";
+    std::string user = getenv("POSTGRES_USER") ? getenv("POSTGRES_USER") : "";
+    std::string password = getenv("POSTGRES_PASSWORD") ? getenv("POSTGRES_PASSWORD") : "";
 
-    char conninfo[256];
-    snprintf(conninfo, sizeof(conninfo), "host=%s port=%s dbname=%s user=%s password=%s", host, port, dbname, user, password);
+
+    if (host.empty() || port.empty() || dbname.empty() || user.empty() || password.empty()) {
+        std::cerr << "Environment variables are not set" << std::endl;
+        return 1;
+    }
+
+    std::string conninfo = 
+    "host=" + host + 
+    " port=" + port + 
+    " dbname=" + dbname + 
+    " user=" + user + 
+    " password=" + password;
+    
+
+    // snprintf(conninfo, sizeof(conninfo), "host=%s port=%s dbname=%s user=%s password=%s", host, port, dbname, user, password);
     // Создание строки подключения к базе данных PostgreSQL
     // Здесь указаны хост, порт, имя базы данных, пользователь и пароль
     // PGconn *conn = PQconnectdb("host=postgres port=5432 dbname=postgres user=postgres password=postgres");
 
-    PGconn *conn = PQconnectdb(conninfo);
+    PGconn *conn = PQconnectdb(conninfo.c_str());
 
     // Проверка статуса подключения
     if (PQstatus(conn) == CONNECTION_BAD) {
