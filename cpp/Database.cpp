@@ -27,32 +27,17 @@ string Database::conninfo(){
        " password=" + getEnvVar("POSTGRES_PASSWORD");
    return conninfo;
 };
-// bool Database::connect() {
-//     PGconn *conn = PQconnectdb(conninfo().c_str());
-//     if (PQstatus(conn) == CONNECTION_BAD) {
-//         cerr << "Connection to database failed: " << PQerrorMessage(conn) << endl;
-//         PQfinish(conn);
-//         return false;
-//     }
-//     cout << "Connected to database" << endl;
-//     return true;
-// }
 bool Database::connect() {
     conn = PQconnectdb(conninfo().c_str());
     if (PQstatus(conn) == CONNECTION_BAD) {
         cerr << "Connection to database failed: " << PQerrorMessage(conn) << endl;
         PQfinish(conn);
-        conn = nullptr; // Обнуляем указатель
+        // conn = nullptr; // Обнуляем указатель
         return false;
     }
     cout << "Connected to database" << endl;
     return true;
 }
-// void Database::disconnect() {
-//     // Закрываем соединение с базой данных
-//     PQfinish(conn);
-//     cout << "Disconnected from database" << endl;
-// }
 void Database::disconnect() {
     if (conn) {
         PQfinish(conn);
