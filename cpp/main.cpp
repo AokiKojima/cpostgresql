@@ -1,8 +1,9 @@
 #include <iostream>        // Подключение библиотеки для ввода-вывода
 #include <libpq-fe.h>     // Подключение библиотеки для работы с PostgreSQL
 #include <string>         // Подключение библиотеки для работы со строками
-#include <cstdlib>        // Подключение библиотеки для работы с функцией getEnvVar
+#include <cstdlib>        // Подключение библиотеки для работы с функцией getenv
 
+// Функция для получения значений переменных окружения в отдельную переменную
 std::string getEnvVar(const char* var) {
     const char* value = getenv(var);
     return value ? std::string(value) : std::string();
