@@ -1,15 +1,20 @@
 #include <iostream>        // Подключение библиотеки для ввода-вывода
 #include <libpq-fe.h>     // Подключение библиотеки для работы с PostgreSQL
 #include <string>         // Подключение библиотеки для работы со строками
-#include <cstdlib>        // Подключение библиотеки для работы с функцией getenv
+#include <cstdlib>        // Подключение библиотеки для работы с функцией getEnvVar
+
+std::string getEnvVar(const char* var) {
+    const char* value = getenv(var);
+    return value ? std::string(value) : std::string();
+}
 
 int main() {
     // Получение значений переменных окружения для подключения к PostgreSQL
-    std::string host = getenv("POSTGRES_HOST") ? getenv("POSTGRES_HOST") : "";
-    std::string port = getenv("POSTGRES_PORT") ? getenv("POSTGRES_PORT") : "";
-    std::string dbname = getenv("POSTGRES_DB") ? getenv("POSTGRES_DB") : "";
-    std::string user = getenv("POSTGRES_USER") ? getenv("POSTGRES_USER") : "";
-    std::string password = getenv("POSTGRES_PASSWORD") ? getenv("POSTGRES_PASSWORD") : "";
+    std::string host = getEnvVar("POSTGRES_HOST");
+    std::string port = getEnvVar("POSTGRES_PORT");
+    std::string dbname = getEnvVar("POSTGRES_DB");
+    std::string user = getEnvVar("POSTGRES_USER");
+    std::string password = getEnvVar("POSTGRES_PASSWORD");
 
     // Проверка, что все необходимые переменные окружения заданы
     if (host.empty() || port.empty() || dbname.empty() || user.empty() || password.empty()) {
